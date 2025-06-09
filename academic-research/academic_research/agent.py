@@ -1,28 +1,41 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-"""Academic_Research: Research advice, related literature finding, research area proposals, web knowledge access."""
+import logging
+import sys
+import urllib3
 
+# Enable HTTP request logging
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+
+# Enable urllib3 debug logging to see all HTTP requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.DEBUG)
+logging.getLogger("requests.packages.urllib3").setLevel(logging.DEBUG)
+
+# Enable httpx logging (used by newer versions)
+logging.getLogger("httpx").setLevel(logging.DEBUG)
+logging.getLogger("httpcore").setLevel(logging.DEBUG)
+
+# Create specific logger for search tool requests
+search_request_logger = logging.getLogger('google_search_requests')
+search_request_logger.setLevel(logging.DEBUG)
+
+# Format to clearly show HTTP requests
+formatter = logging.Formatter('🌐 HTTP: %(asctime)s - %(name)s - %(message)s')
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(formatter)
+search_request_logger.addHandler(handler)
+
+# Your existing agent code...
 from google.adk.agents import LlmAgent
 from google.adk.tools.agent_tool import AgentTool
-
 from . import prompt
 from .sub_agents.academic_newresearch import academic_newresearch_agent
 from .sub_agents.academic_websearch import academic_websearch_agent
 
 MODEL = "gemini-2.0-flash"
 
+# Add a logger for your agent
+logger = logging.getLogger('academic_coordinator')
 
 academic_coordinator = LlmAgent(
     name="academic_coordinator",
@@ -43,3 +56,6 @@ academic_coordinator = LlmAgent(
 )
 
 root_agent = academic_coordinator
+
+# Log when agent is initialized
+logger.info("Academic coordinator agent initialized with web search capabilities")

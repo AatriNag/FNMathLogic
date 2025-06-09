@@ -14,16 +14,23 @@
 
 """Academic_websearch_agent for finding research papers using search tools."""
 
+import logging
+import os
+
+# Set ADK debug level
+os.environ['ADK_LOG_LEVEL'] = 'DEBUG'
+
+# Configure logging to see HTTP requests
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.DEBUG)
+logging.getLogger("httpx").setLevel(logging.DEBUG)
+
+# Your existing agent code...
 from google.adk import Agent
 from google.adk.tools import google_search
-
 from . import prompt
-
-MODEL = "gemini-2.0-flash"
-
-
 academic_websearch_agent = Agent(
-    model=MODEL,
+    model="gemini-2.0-flash",
     name="academic_websearch_agent",
     instruction=prompt.ACADEMIC_WEBSEARCH_PROMPT,
     output_key="recent_citing_papers",
